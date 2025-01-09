@@ -5,72 +5,96 @@
                 "memcached5:11211"
             ]
         },
-        "replicas": {
+        "replica1": {
             "servers": [
-                "memcached1:11211",
-                "memcached2:11211",
-                "memcached3:11211",
+                "memcached1:11211"
+            ]
+        },
+        "replica2": {
+            "servers": [
+                "memcached2:11211"
+            ]
+        },
+        "replica3": {
+            "servers": [
+                "memcached3:11211"
+            ]
+        },
+        "replica4": {
+            "servers": [
                 "memcached4:11211"
             ]
         }
     },
+    "named_handles": [
+        {
+            "type": "FailoverRoute",
+            "name": "replica_failover",
+            "children": [
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica1"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica2"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica3"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica4"
+                }
+            ]
+        },
+        {
+            "type": "AllSyncRoute",
+            "name": "write_all",
+            "children": [
+                {
+                    "type": "PoolRoute",
+                    "pool": "primary"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica1"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica2"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica3"
+                },
+                {
+                    "type": "PoolRoute",
+                    "pool": "replica4"
+                }
+            ]
+        }
+    ],
     "route": {
         "type": "OperationSelectorRoute",
         "operation_policies": {
             "get": {
                 "type": "FailoverRoute",
                 "children": [
-                    {
-                        "type": "WarmUpRoute",
-                        "cold": "PoolRoute|primary",
-                        "warm": "PoolRoute|replicas"
-                    },
-                    {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
-                    }
+                    "PoolRoute|primary",
+                    "replica_failover"
                 ]
             },
             "gets": {
                 "type": "FailoverRoute",
                 "children": [
-                    {
-                        "type": "WarmUpRoute",
-                        "cold": "PoolRoute|primary",
-                        "warm": "PoolRoute|replicas"
-                    },
-                    {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
-                    }
+                    "PoolRoute|primary",
+                    "replica_failover"
                 ]
             },
-            "set": {
-                "type": "AllSyncRoute",
-                "children": [
-                    {
-                        "type": "PoolRoute",
-                        "pool": "primary"
-                    },
-                    {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
-                    }
-                ]
-            },
-            "delete": {
-                "type": "AllSyncRoute",
-                "children": [
-                    {
-                        "type": "PoolRoute",
-                        "pool": "primary"
-                    },
-                    {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
-                    }
-                ]
-            }
+            "set": "write_all",
+            "delete": "write_all"
         }
     }
 }
