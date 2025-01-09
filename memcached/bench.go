@@ -14,7 +14,7 @@ import (
 const (
 	numKeys       = 1_000_000   // Total unique keys
 	valueSize     = 100         // Size of each value in bytes
-	randomKeyPool = 1_000_000   // Pool of random keys to generate high hit rate
+	randomKeyPool = 10_000_000  // Pool of random keys to generate high hit rate
 	hitRate       = 0.95        // Desired hit rate
 	getToSetRatio = 0.9         // Desired GET/SET ratio
 	operations    = 100_000_000 // Total operations to perform

@@ -53,8 +53,8 @@
                         "pool": "primary"
                     },
                     {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
+                        "type": "AllSyncRoute",
+                        "children": "PoolRoute|replicas"
                     }
                 ]
             },
@@ -66,8 +66,8 @@
                         "pool": "primary"
                     },
                     {
-                        "type": "PoolRoute",
-                        "pool": "replicas"
+                        "type": "AllSyncRoute",
+                        "children": "PoolRoute|replicas"
                     }
                 ]
             }
