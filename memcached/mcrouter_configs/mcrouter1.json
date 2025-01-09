@@ -31,6 +31,20 @@
                     }
                 ]
             },
+            "gets": {
+                "type": "FailoverRoute",
+                "children": [
+                    {
+                        "type": "WarmUpRoute",
+                        "cold": "PoolRoute|primary",
+                        "warm": "PoolRoute|replicas"
+                    },
+                    {
+                        "type": "PoolRoute",
+                        "pool": "replicas"
+                    }
+                ]
+            },
             "set": {
                 "type": "AllSyncRoute",
                 "children": [

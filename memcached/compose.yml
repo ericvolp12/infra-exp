@@ -3,7 +3,7 @@ services:
   memcached1:
     image: memcached:latest
     container_name: memcached1
-    command: memcached -m 1024 -c 10000
+    command: memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -12,7 +12,7 @@ services:
   memcached2:
     image: memcached:latest
     container_name: memcached2
-    command: memcached -m 1024 -c 10000
+    command: memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -21,7 +21,7 @@ services:
   memcached3:
     image: memcached:latest
     container_name: memcached3
-    command: memcached -m 1024 -c 10000
+    command: memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -30,7 +30,7 @@ services:
   memcached4:
     image: memcached:latest
     container_name: memcached4
-    command: memcached -m 1024 -c 10000
+    command: memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -39,7 +39,7 @@ services:
   memcached5:
     image: memcached:latest
     container_name: memcached5
-    command: memcached -m 1024 -c 10000
+    command: memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -49,7 +49,7 @@ services:
   mcrouter1:
     image: mcrouter:latest
     container_name: mcrouter1
-    command: mcrouter --config-file=/config/mcrouter1.json -p 5001
+    command: mcrouter --config-file=/config/mcrouter1.json -p 5001 --num-proxies 16
     networks:
       - memcached_testnet
     ports:
@@ -60,7 +60,7 @@ services:
   mcrouter2:
     image: mcrouter:latest
     container_name: mcrouter2
-    command: mcrouter --config-file=/config/mcrouter2.json -p 5002
+    command: mcrouter --config-file=/config/mcrouter2.json -p 5002 --num-proxies 16
     networks:
       - memcached_testnet
     ports:
@@ -71,7 +71,7 @@ services:
   mcrouter3:
     image: mcrouter:latest
     container_name: mcrouter3
-    command: mcrouter --config-file=/config/mcrouter3.json -p 5003
+    command: mcrouter --config-file=/config/mcrouter3.json -p 5003 --num-proxies 16
     networks:
       - memcached_testnet
     ports:
@@ -82,7 +82,7 @@ services:
   mcrouter4:
     image: mcrouter:latest
     container_name: mcrouter4
-    command: mcrouter --config-file=/config/mcrouter4.json -p 5004
+    command: mcrouter --config-file=/config/mcrouter4.json -p 5004 --num-proxies 16
     networks:
       - memcached_testnet
     ports:
@@ -93,7 +93,7 @@ services:
   mcrouter5:
     image: mcrouter:latest
     container_name: mcrouter5
-    command: mcrouter --config-file=/config/mcrouter5.json -p 5005
+    command: mcrouter --config-file=/config/mcrouter5.json -p 5005 --num-proxies 16
     networks:
       - memcached_testnet
     ports:

@@ -5,6 +5,7 @@ prometheus.exporter.memcached "memcached1" {
 prometheus.scrape "memcached1" {
   targets    = prometheus.exporter.memcached.memcached1.targets
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
 }
 
 prometheus.exporter.memcached "memcached2" {
@@ -14,6 +15,7 @@ prometheus.exporter.memcached "memcached2" {
 prometheus.scrape "memcached2" {
   targets    = prometheus.exporter.memcached.memcached2.targets
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
 }
 
 prometheus.exporter.memcached "memcached3" {
@@ -23,6 +25,7 @@ prometheus.exporter.memcached "memcached3" {
 prometheus.scrape "memcached3" {
   targets    = prometheus.exporter.memcached.memcached3.targets
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
 }
 
 prometheus.exporter.memcached "memcached4" {
@@ -32,6 +35,7 @@ prometheus.exporter.memcached "memcached4" {
 prometheus.scrape "memcached4" {
   targets    = prometheus.exporter.memcached.memcached4.targets
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
 }
 
 prometheus.exporter.memcached "memcached5" {
@@ -41,6 +45,7 @@ prometheus.exporter.memcached "memcached5" {
 prometheus.scrape "memcached5" {
   targets    = prometheus.exporter.memcached.memcached5.targets
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
 }
 
 prometheus.remote_write "default" {
@@ -48,16 +53,6 @@ prometheus.remote_write "default" {
                 url     = "http://10.0.6.7:9009/api/v1/push"
                 headers = {
                         "X-Scope-Orgid" = "local_apt",
-                }
-
-                queue_config {
-                        capacity             = 2500
-                        max_shards           = 200
-                        max_samples_per_send = 500
-                }
-
-                metadata_config {
-                        max_samples_per_send = 500
                 }
         }
 }
