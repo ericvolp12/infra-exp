@@ -1,0 +1,62 @@
+{
+    "pools": {
+        "primary": {
+            "servers": [
+                "memcached3:11211"
+            ]
+        },
+        "replicas": {
+            "servers": [
+                "memcached1:11211",
+                "memcached2:11211",
+                "memcached4:11211",
+                "memcached5:11211"
+            ]
+        }
+    },
+    "route": {
+        "type": "OperationSelectorRoute",
+        "operation_policies": {
+            "get": {
+                "type": "FailoverRoute",
+                "children": [
+                    {
+                        "type": "WarmUpRoute",
+                        "cold": "PoolRoute|primary",
+                        "warm": "PoolRoute|replicas"
+                    },
+                    {
+                        "type": "PoolRoute",
+                        "pool": "replicas"
+                    }
+                ]
+            },
+            "set": {
+                "type": "AllSyncRoute",
+                "children": [
+                    {
+                        "type": "PoolRoute",
+                        "pool": "primary"
+                    },
+                    {
+                        "type": "PoolRoute",
+                        "pool": "replicas"
+                    }
+                ]
+            },
+            "delete": {
+                "type": "AllSyncRoute",
+                "children": [
+                    {
+                        "type": "PoolRoute",
+                        "pool": "primary"
+                    },
+                    {
+                        "type": "PoolRoute",
+                        "pool": "replicas"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,120 @@
+services:
+  # Memcached instances
+  memcached1:
+    image: memcached:latest
+    container_name: memcached1
+    command: memcached -m 1024 -c 10000
+    networks:
+      - memcached_testnet
+    ports:
+      - "11211:11211"
+
+  memcached2:
+    image: memcached:latest
+    container_name: memcached2
+    command: memcached -m 1024 -c 10000
+    networks:
+      - memcached_testnet
+    ports:
+      - "11212:11211"
+
+  memcached3:
+    image: memcached:latest
+    container_name: memcached3
+    command: memcached -m 1024 -c 10000
+    networks:
+      - memcached_testnet
+    ports:
+      - "11213:11211"
+
+  memcached4:
+    image: memcached:latest
+    container_name: memcached4
+    command: memcached -m 1024 -c 10000
+    networks:
+      - memcached_testnet
+    ports:
+      - "11214:11211"
+
+  memcached5:
+    image: memcached:latest
+    container_name: memcached5
+    command: memcached -m 1024 -c 10000
+    networks:
+      - memcached_testnet
+    ports:
+      - "11215:11211"
+
+  # Mcrouter instances
+  mcrouter1:
+    image: mcrouter:latest
+    container_name: mcrouter1
+    command: mcrouter --config-file=/config/mcrouter1.json -p 5001
+    networks:
+      - memcached_testnet
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./mcrouter_configs:/config
+
+  mcrouter2:
+    image: mcrouter:latest
+    container_name: mcrouter2
+    command: mcrouter --config-file=/config/mcrouter2.json -p 5002
+    networks:
+      - memcached_testnet
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./mcrouter_configs:/config
+
+  mcrouter3:
+    image: mcrouter:latest
+    container_name: mcrouter3
+    command: mcrouter --config-file=/config/mcrouter3.json -p 5003
+    networks:
+      - memcached_testnet
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./mcrouter_configs:/config
+
+  mcrouter4:
+    image: mcrouter:latest
+    container_name: mcrouter4
+    command: mcrouter --config-file=/config/mcrouter4.json -p 5004
+    networks:
+      - memcached_testnet
+    ports:
+      - "5004:5004"
+    volumes:
+      - ./mcrouter_configs:/config
+
+  mcrouter5:
+    image: mcrouter:latest
+    container_name: mcrouter5
+    command: mcrouter --config-file=/config/mcrouter5.json -p 5005
+    networks:
+      - memcached_testnet
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./mcrouter_configs:/config
+
+  # Grafana Agent for Memcached metrics
+  grafana-agent:
+    image: grafana/agent:latest
+    container_name: grafana-agent
+    environment:
+      - AGENT_MODE=flow
+    networks:
+      - memcached_testnet
+    volumes:
+      - ./grafana-agent-config.river:/etc/agent/agent-config.river
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/agent/agent-config.river
+    ports:
+      - "12348:12345"
+
+networks:
+  memcached_testnet:
+    driver: bridge

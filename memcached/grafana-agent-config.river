@@ -1,0 +1,63 @@
+prometheus.exporter.memcached "memcached1" {
+  address = "memcached1:11211"
+}
+
+prometheus.scrape "memcached1" {
+  targets    = prometheus.exporter.memcached.memcached1.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.exporter.memcached "memcached2" {
+  address = "memcached2:11211"
+}
+
+prometheus.scrape "memcached2" {
+  targets    = prometheus.exporter.memcached.memcached2.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.exporter.memcached "memcached3" {
+  address = "memcached3:11211"
+}
+
+prometheus.scrape "memcached3" {
+  targets    = prometheus.exporter.memcached.memcached3.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.exporter.memcached "memcached4" {
+  address = "memcached4:11211"
+}
+
+prometheus.scrape "memcached4" {
+  targets    = prometheus.exporter.memcached.memcached4.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.exporter.memcached "memcached5" {
+  address = "memcached5:11211"
+}
+
+prometheus.scrape "memcached5" {
+  targets    = prometheus.exporter.memcached.memcached5.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+        endpoint {
+                url     = "http://10.0.6.7:9009/api/v1/push"
+                headers = {
+                        "X-Scope-Orgid" = "local_apt",
+                }
+
+                queue_config {
+                        capacity             = 2500
+                        max_shards           = 200
+                        max_samples_per_send = 500
+                }
+
+                metadata_config {
+                        max_samples_per_send = 500
+                }
+        }
+}
