@@ -82,14 +82,22 @@
             "get": {
                 "type": "FailoverRoute",
                 "children": [
-                    "PoolRoute|primary",
+                    {
+                        "type": "WarmUpRoute",
+                        "cold": "PoolRoute|primary",
+                        "warm": "replica_failover"
+                    },
                     "replica_failover"
                 ]
             },
             "gets": {
                 "type": "FailoverRoute",
                 "children": [
-                    "PoolRoute|primary",
+                    {
+                        "type": "WarmUpRoute",
+                        "cold": "PoolRoute|primary",
+                        "warm": "replica_failover"
+                    },
                     "replica_failover"
                 ]
             },

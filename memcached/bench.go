@@ -4,19 +4,23 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
+	"net/http"
 	"runtime"
 	"sync"
 	"time"
 
 	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
-	numKeys       = 1_000_000   // Total unique keys
+	numKeys       = 10_000_000  // Total unique keys
 	valueSize     = 100         // Size of each value in bytes
-	randomKeyPool = 10_000_000  // Pool of random keys to generate high hit rate
+	randomKeyPool = 5_000_000   // Pool of random keys to generate high hit rate
 	hitRate       = 0.95        // Desired hit rate
-	getToSetRatio = 0.9         // Desired GET/SET ratio
+	getToSetRatio = 0.98        // Desired GET/SET ratio
 	operations    = 100_000_000 // Total operations to perform
 )
 
@@ -25,6 +29,18 @@ type operation struct {
 	key   string
 	value string
 }
+
+var opDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	Name:    "bench_memcached_op_duration_seconds",
+	Help:    "Duration of Memcached operations",
+	Buckets: prometheus.ExponentialBuckets(0.0001, 2, 20),
+}, []string{"operation", "result"})
+
+var getHits = opDuration.WithLabelValues("GET", "hit")
+var getMisses = opDuration.WithLabelValues("GET", "miss")
+var getError = opDuration.WithLabelValues("GET", "error")
+var setOk = opDuration.WithLabelValues("SET", "ok")
+var setError = opDuration.WithLabelValues("SET", "error")
 
 func randomString(n int) string {
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -43,7 +59,13 @@ func main() {
 		return
 	}
 
-	mc.MaxIdleConns = 1000
+	// Start a metrics server
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		http.ListenAndServe(":8754", nil)
+	}()
+
+	mc.MaxIdleConns = 100
 	mc.Timeout = 100 * time.Millisecond
 
 	slog.Info("Connected to Memcached")
@@ -51,7 +73,7 @@ func main() {
 	// Prepopulate Memcached with keys to achieve the desired hit rate
 	keyPool := make([]string, randomKeyPool)
 	var wg sync.WaitGroup
-	numPrepopulateWorkers := runtime.NumCPU() * 16
+	numPrepopulateWorkers := runtime.NumCPU() * 8
 	keysPerWorker := randomKeyPool / numPrepopulateWorkers
 
 	for w := 0; w < numPrepopulateWorkers; w++ {
@@ -69,8 +91,12 @@ func main() {
 
 				// Only set keys with a probability of hitRate
 				if rand.Float64() < hitRate {
+					s := time.Now()
 					if err := mc.Set(&memcache.Item{Key: key, Value: []byte(value)}); err != nil {
 						fmt.Printf("Failed to set key %s: %v\n", key, err)
+						setError.Observe(time.Since(s).Seconds())
+					} else {
+						setOk.Observe(time.Since(s).Seconds())
 					}
 				}
 				keyPool[i] = key
@@ -92,17 +118,28 @@ func main() {
 		go func() {
 			defer wg.Done()
 			for op := range operationsCh {
+				s := time.Now()
 				if op.isGet {
 					// Perform GET operation
 					_, err := mc.Get(op.key)
-					if err == nil || err == memcache.ErrCacheMiss {
-						getOps++
+					if err != nil {
+						if err == memcache.ErrCacheMiss {
+							getMisses.Observe(time.Since(s).Seconds())
+						} else {
+							getError.Observe(time.Since(s).Seconds())
+							fmt.Printf("Failed to get key %s: %v\n", op.key, err)
+						}
 					} else {
-						fmt.Printf("Failed to get key %s: %v\n", op.key, err)
+						getHits.Observe(time.Since(s).Seconds())
 					}
+					getOps++
 				} else {
 					// Perform SET operation
-					if err := mc.Set(&memcache.Item{Key: op.key, Value: []byte(op.value)}); err == nil {
+					if err := mc.Set(&memcache.Item{Key: op.key, Value: []byte(op.value)}); err != nil {
+						fmt.Printf("Failed to set key %s: %v\n", op.key, err)
+						setError.Observe(time.Since(s).Seconds())
+					} else {
+						setOk.Observe(time.Since(s).Seconds())
 						setOps++
 					}
 				}

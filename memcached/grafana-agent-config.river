@@ -48,6 +48,14 @@ prometheus.scrape "memcached5" {
   scrape_interval = "10s"
 }
 
+prometheus.scrape "memcached_bench" {
+  targets = [
+    {"__address__" = "host.docker.internal:8754"},
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "10s"
+}
+
 prometheus.remote_write "default" {
         endpoint {
                 url     = "http://10.0.6.7:9009/api/v1/push"

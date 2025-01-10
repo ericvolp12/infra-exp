@@ -50,6 +50,19 @@
             ]
         },
         {
+            "type": "PoolRoute",
+            "name": "primary_warmup",
+            "pool": "primary",
+            "slow_warmup": {
+                "failoverTarget": "replica_failover",
+                "settings": {
+                    "enable_threshold": 0.5,
+                    "disable_threshold": 0.9,
+                    "start": 0.99
+                }
+            }
+        },
+        {
             "type": "AllSyncRoute",
             "name": "write_all",
             "children": [
@@ -82,14 +95,14 @@
             "get": {
                 "type": "FailoverRoute",
                 "children": [
-                    "PoolRoute|primary",
+                    "primary_warmup",
                     "replica_failover"
                 ]
             },
             "gets": {
                 "type": "FailoverRoute",
                 "children": [
-                    "PoolRoute|primary",
+                    "primary_warmup",
                     "replica_failover"
                 ]
             },

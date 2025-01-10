@@ -3,7 +3,7 @@ services:
   memcached1:
     image: memcached:latest
     container_name: memcached1
-    command: memcached -m 1024 -c 10000 -R 1000
+    command: nice -n 5 memcached -m 1024 -c 10000 -R 1000
     networks:
       - memcached_testnet
     ports:
@@ -47,9 +47,9 @@ services:
 
   # Mcrouter instances
   mcrouter1:
-    image: mcrouter:latest
+    image: mcrouter/mcrouter:latest
     container_name: mcrouter1
-    command: mcrouter --config-file=/config/mcrouter1.json -p 5001 --num-proxies 16
+    command: nice -n 10 mcrouter --config-file=/config/mcrouter1.json -p 5001 --num-proxies 16
     networks:
       - memcached_testnet
     ports:
@@ -58,7 +58,7 @@ services:
       - ./mcrouter_configs:/config
 
   mcrouter2:
-    image: mcrouter:latest
+    image: mcrouter/mcrouter:latest
     container_name: mcrouter2
     command: mcrouter --config-file=/config/mcrouter2.json -p 5002 --num-proxies 16
     networks:
@@ -69,7 +69,7 @@ services:
       - ./mcrouter_configs:/config
 
   mcrouter3:
-    image: mcrouter:latest
+    image: mcrouter/mcrouter:latest
     container_name: mcrouter3
     command: mcrouter --config-file=/config/mcrouter3.json -p 5003 --num-proxies 16
     networks:
@@ -80,7 +80,7 @@ services:
       - ./mcrouter_configs:/config
 
   mcrouter4:
-    image: mcrouter:latest
+    image: mcrouter/mcrouter:latest
     container_name: mcrouter4
     command: mcrouter --config-file=/config/mcrouter4.json -p 5004 --num-proxies 16
     networks:
@@ -91,7 +91,7 @@ services:
       - ./mcrouter_configs:/config
 
   mcrouter5:
-    image: mcrouter:latest
+    image: mcrouter/mcrouter:latest
     container_name: mcrouter5
     command: mcrouter --config-file=/config/mcrouter5.json -p 5005 --num-proxies 16
     networks:
@@ -109,11 +109,22 @@ services:
       - AGENT_MODE=flow
     networks:
       - memcached_testnet
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./grafana-agent-config.river:/etc/agent/agent-config.river
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/agent/agent-config.river
     ports:
       - "12348:12345"
+
+  # mcrouter-exporter:
+  #   image: docker pull quay.io/dev25/mcrouter_exporter:0.4.0
+  #   container_name: mcrouter-exporter
+  #   networks:
+  #     - memcached_testnet
+  #   ports:
+  #     - "9442:9442"
+  #   command: mcrouter-exporter --mcrouter.addresses=mcrouter1:5001
 
 networks:
   memcached_testnet:
