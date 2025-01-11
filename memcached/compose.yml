@@ -3,62 +3,47 @@ services:
   memcached1:
     image: dormando/memcached:next-proxy
     container_name: memcached1
-    command: memcached -m 8192 -c 10000 -t 8
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11211
     cpuset: "0-3,24-27"
     volumes:
       - ./configs/1.lua:/config/config.lua
-    networks:
-      - memcached_testnet
-    ports:
-      - "11211:11211"
+    network_mode: host
 
   memcached2:
     image: dormando/memcached:next-proxy
     container_name: memcached2
-    command: memcached -d -u root -m 8192 -c 10000 -R 10000 -t 8
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11212
     cpuset: "4-7,28-31"
     volumes:
       - ./configs/2.lua:/config/config.lua
-    networks:
-      - memcached_testnet
-    ports:
-      - "11212:11211"
+    network_mode: host
 
   memcached3:
     image: dormando/memcached:next-proxy
     container_name: memcached3
-    command: memcached -d -u root -m 8192 -c 10000 -R 10000 -t 8
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11213
     cpuset: "8-11,32-35"
     volumes:
       - ./configs/3.lua:/config/config.lua
-    networks:
-      - memcached_testnet
-    ports:
-      - "11213:11211"
+    network_mode: host
 
   memcached4:
     image: dormando/memcached:next-proxy
     container_name: memcached4
-    command: memcached -d -u root -m 8192 -c 10000 -R 10000 -t 8
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11214
     cpuset: "12-15,36-39"
     volumes:
       - ./configs/4.lua:/config/config.lua
-    networks:
-      - memcached_testnet
-    ports:
-      - "11214:11211"
+    network_mode: host
 
   memcached5:
     image: dormando/memcached:next-proxy
     container_name: memcached5
-    command: memcached -d -u root -m 8192 -c 10000 -R 10000 -t 8
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11215
     cpuset: "16-19,40-43"
     volumes:
       - ./configs/5.lua:/config/config.lua
-    networks:
-      - memcached_testnet
-    ports:
-      - "11215:11211"
+    network_mode: host
 
   # Grafana Agent for Memcached metrics
   grafana-agent:
@@ -66,15 +51,10 @@ services:
     container_name: grafana-agent
     environment:
       - AGENT_MODE=flow
-    networks:
-      - memcached_testnet
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: host
     volumes:
       - ./grafana-agent-config.river:/etc/agent/agent-config.river
-    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/agent/agent-config.river
-    ports:
-      - "12348:12345"
+    command: run --server.http.listen-addr=0.0.0.0:12348 /etc/agent/agent-config.river
 
 networks:
   memcached_testnet:

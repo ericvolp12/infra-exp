@@ -3,19 +3,19 @@ local_zone("mc1")
 pools {
     set_all = {
         mc1 = {
-            backends = { "memcached1:11211" }
+            backends = { "127.0.0.1:11211" }
         },
         mc2 = {
-            backends = { "memcached2:11211" }
+            backends = { "127.0.0.1:11212" }
         },
         mc3 = {
-            backends = { "memcached3:11211" }
+            backends = { "127.0.0.1:11213" }
         },
         mc4 = {
-            backends = { "memcached4:11211" }
+            backends = { "127.0.0.1:11214" }
         },
         mc5 = {
-            backends = { "memcached5:11211" }
+            backends = { "127.0.0.1:11215" }
         }
     }
 }
