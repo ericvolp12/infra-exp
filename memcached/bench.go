@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"math/rand/v2"
 	"net/http"
-	"runtime"
+	_ "net/http/pprof"
 	"sync"
 	"time"
 
@@ -53,7 +53,7 @@ func randomString(n int) string {
 
 func main() {
 	// Connect to Memcached
-	mc := memcache.New("127.0.0.1:5001")
+	mc := memcache.New("127.0.0.1:11211")
 	if mc == nil {
 		fmt.Println("Failed to create Memcached client")
 		return
@@ -73,7 +73,7 @@ func main() {
 	// Prepopulate Memcached with keys to achieve the desired hit rate
 	keyPool := make([]string, randomKeyPool)
 	var wg sync.WaitGroup
-	numPrepopulateWorkers := runtime.NumCPU() * 8
+	numPrepopulateWorkers := 32
 	keysPerWorker := randomKeyPool / numPrepopulateWorkers
 
 	for w := 0; w < numPrepopulateWorkers; w++ {
@@ -108,7 +108,7 @@ func main() {
 
 	slog.Info("Generated key pool")
 
-	numWorkers := runtime.NumCPU() * 8
+	numWorkers := 32
 	operationsCh := make(chan operation, operations)
 	var getOps, setOps int64
 
