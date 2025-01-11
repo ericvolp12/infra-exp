@@ -1,48 +1,46 @@
 services:
-  # Memcached instances
-  memcached1:
+  memcached_proxy:
     image: dormando/memcached:next-proxy
-    container_name: memcached1
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11211
-    cpuset: "0-3,24-27"
+    container_name: memcached_proxy
+    command: memcached -l localhost -p 5001 -t 8
+    cpuset: "20-23,44-47"
     volumes:
       - ./configs/1.lua:/config/config.lua
     network_mode: host
+  # Memcached instances
+  memcached1:
+    image: memcached:latest
+    container_name: memcached1
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11211
+    cpuset: "0-3,24-27"
+    network_mode: host
 
   memcached2:
-    image: dormando/memcached:next-proxy
+    image: memcached:latest
     container_name: memcached2
     command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11212
     cpuset: "4-7,28-31"
-    volumes:
-      - ./configs/2.lua:/config/config.lua
     network_mode: host
 
   memcached3:
-    image: dormando/memcached:next-proxy
+    image: memcached:latest
     container_name: memcached3
     command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11213
     cpuset: "8-11,32-35"
-    volumes:
-      - ./configs/3.lua:/config/config.lua
     network_mode: host
 
   memcached4:
-    image: dormando/memcached:next-proxy
+    image: memcached:latest
     container_name: memcached4
     command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11214
     cpuset: "12-15,36-39"
-    volumes:
-      - ./configs/4.lua:/config/config.lua
     network_mode: host
 
   memcached5:
-    image: dormando/memcached:next-proxy
+    image: memcached:latest
     container_name: memcached5
     command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11215
     cpuset: "16-19,40-43"
-    volumes:
-      - ./configs/5.lua:/config/config.lua
     network_mode: host
 
   # Grafana Agent for Memcached metrics

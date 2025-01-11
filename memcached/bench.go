@@ -53,7 +53,7 @@ func randomString(n int) string {
 
 func main() {
 	// Connect to Memcached
-	mc := memcache.New("127.0.0.1:11211")
+	mc := memcache.New("127.0.0.1:5001")
 	if mc == nil {
 		fmt.Println("Failed to create Memcached client")
 		return
