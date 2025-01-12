@@ -35,7 +35,7 @@ var serveCmd = &cli.Command{
 		&cli.StringFlag{
 			Name:    "metrics-listen-address",
 			Usage:   "listen endpoint for metrics and pprof",
-			Value:   "0.0.0.0:8301",
+			Value:   "0.0.0.0:8300",
 			EnvVars: []string{"PING_METRICS_LISTEN_ADDRESS"},
 		},
 	},

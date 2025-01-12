@@ -61,6 +61,56 @@ services:
         ports:
             - '2482:2482'
 
+    pingserver1:
+        image: pingserver
+        build:
+            context: .
+            dockerfile: ping.Dockerfile
+        networks:
+            - etcd_testnet
+        command: ["serve"]
+        environment:
+            - PING_DISCOVERY_ADDRESSES=etcd-1:2480,etcd-2:2481,etcd-3:2482
+            - PING_LISTEN_ADDRESS=0.0.0.0:8200
+            - PING_METRICS_LISTEN_ADDRESS=0.0.0.0:8300
+            - PING_EXTERNAL_ADDRESS=http://localhost:8200
+        ports:
+            - '8200:8200'
+            - '8300:8300'
+    pingserver2:
+        image: pingserver
+        build:
+            context: .
+            dockerfile: ping.Dockerfile
+        networks:
+            - etcd_testnet
+        command: ["serve"]
+        environment:
+            - PING_DISCOVERY_ADDRESSES=etcd-1:2480,etcd-2:2481,etcd-3:2482
+            - PING_LISTEN_ADDRESS=0.0.0.0:8201
+            - PING_METRICS_LISTEN_ADDRESS=0.0.0.0:8301
+            - PING_EXTERNAL_ADDRESS=http://localhost:8201
+        ports:
+            - '8201:8201'
+            - '8301:8301'
+    pingserver3:
+        image: pingserver
+        build:
+            context: .
+            dockerfile: ping.Dockerfile
+        networks:
+            - etcd_testnet
+        command: ["serve"]
+        environment:
+            - PING_DISCOVERY_ADDRESSES=etcd-1:2480,etcd-2:2481,etcd-3:2482
+            - PING_LISTEN_ADDRESS=0.0.0.0:8202
+            - PING_METRICS_LISTEN_ADDRESS=0.0.0.0:8302
+            - PING_EXTERNAL_ADDRESS=http://localhost:8202
+        ports:
+            - '8202:8202'
+            - '8302:8302'
+        
+
 volumes:
     etcd1:
     etcd2:
