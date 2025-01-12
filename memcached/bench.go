@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"sync"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 const (
@@ -52,8 +55,37 @@ func randomString(n int) string {
 }
 
 func main() {
+	ctx := context.Background()
+
+	// Connect to etcd
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints:   []string{"localhost:2480", "localhost:2401", "localhost:2482"},
+		DialTimeout: 5 * time.Second,
+	})
+	if err != nil {
+		fmt.Printf("Failed to connect to etcd: %v\n", err)
+		return
+	}
+	defer cli.Close()
+
+	// Fetch memcached address from etcd
+	resp, err := cli.Get(ctx, "memcached_host")
+	if err != nil {
+		fmt.Printf("Failed to get memcached_host from etcd: %v\n", err)
+		return
+	}
+
+	if len(resp.Kvs) == 0 {
+		fmt.Println("memcached_host key not found in etcd")
+		return
+	}
+
+	host := string(resp.Kvs[0].Value)
+	serverList := &memcache.ServerList{}
+	serverList.SetServers(host)
+
 	// Connect to Memcached
-	mc := memcache.New("127.0.0.1:5001")
+	mc := memcache.NewFromSelector(serverList)
 	if mc == nil {
 		fmt.Println("Failed to create Memcached client")
 		return
@@ -62,11 +94,31 @@ func main() {
 	// Start a metrics server
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		http.ListenAndServe(":8754", nil)
+		http.ListenAndServe(os.Getenv("LISTEN_ADDR"), nil)
 	}()
 
 	mc.MaxIdleConns = 100
 	mc.Timeout = 100 * time.Millisecond
+
+	// Start a routine to watch for changes in memcached_host
+	go func() {
+		watchChan := cli.Watch(ctx, "memcached_host")
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case resp := <-watchChan:
+				for _, ev := range resp.Events {
+					host = string(ev.Kv.Value)
+					slog.Info("Memcached host updated", "new_host", host)
+					err := serverList.SetServers(host)
+					if err != nil {
+						fmt.Printf("Failed to update Memcached host: %v\n", err)
+					}
+				}
+			}
+		}
+	}()
 
 	slog.Info("Connected to Memcached")
 

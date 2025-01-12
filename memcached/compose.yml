@@ -11,37 +11,61 @@ services:
   memcached1:
     image: memcached:latest
     container_name: memcached1
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11211
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11211 -R 1000
     cpuset: "0-3,24-27"
     network_mode: host
 
   memcached2:
     image: memcached:latest
     container_name: memcached2
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11212
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11212 -R 1000
     cpuset: "4-7,28-31"
     network_mode: host
 
   memcached3:
     image: memcached:latest
     container_name: memcached3
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11213
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11213 -R 1000
     cpuset: "8-11,32-35"
     network_mode: host
 
   memcached4:
     image: memcached:latest
     container_name: memcached4
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11214
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11214 -R 1000
     cpuset: "12-15,36-39"
     network_mode: host
 
   memcached5:
     image: memcached:latest
     container_name: memcached5
-    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11215
+    command: memcached -m 8192 -c 10000 -t 8 -l localhost -p 11215 -R 1000
     cpuset: "16-19,40-43"
     network_mode: host
+
+  # bench1:
+  #   image: bench:latest
+  #   build:
+  #     context: .
+  #     dockerfile: bench.Dockerfile
+  #   container_name: bench1
+  #   network_mode: host
+  #   cpuset: "16-17,40-41"
+  #   environment:
+  #     - MEMCACHED_SERVERS=127.0.0.1:11211
+  #     - LISTEN_ADDR=0.0.0.0:8754
+  
+  # bench2:
+  #   image: bench:latest
+  #   build:
+  #     context: .
+  #     dockerfile: bench.Dockerfile
+  #   container_name: bench2
+  #   network_mode: host
+  #   cpuset: "18-19,42-43"
+  #   environment:
+  #     - MEMCACHED_SERVERS=127.0.0.1:11211
+  #     - LISTEN_ADDR=0.0.0.0:8755
 
   # Grafana Agent for Memcached metrics
   grafana-agent:
