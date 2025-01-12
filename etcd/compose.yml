@@ -9,6 +9,7 @@ x-variables:
 services:
     etcd-1:
         <<: *common_settings
+        container_name: etcd-1
         command:
             - '--name=etcd-1'
             - '--initial-advertise-peer-urls=http://etcd-1:2380'
@@ -27,6 +28,7 @@ services:
 
     etcd-2:
         <<: *common_settings
+        container_name: etcd-2
         command:
             - '--name=etcd-2'
             - '--initial-advertise-peer-urls=http://etcd-2:2380'
@@ -45,6 +47,7 @@ services:
 
     etcd-3:
         <<: *common_settings
+        container_name: etcd-3
         command:
             - '--name=etcd-3'
             - '--initial-advertise-peer-urls=http://etcd-3:2380'
@@ -63,6 +66,7 @@ services:
 
     pingserver1:
         image: pingserver
+        container_name: pingserver1
         build:
             context: .
             dockerfile: ping.Dockerfile
@@ -79,6 +83,7 @@ services:
             - '8300:8300'
     pingserver2:
         image: pingserver
+        container_name: pingserver2
         build:
             context: .
             dockerfile: ping.Dockerfile
@@ -95,6 +100,7 @@ services:
             - '8301:8301'
     pingserver3:
         image: pingserver
+        container_name: pingserver3
         build:
             context: .
             dockerfile: ping.Dockerfile
